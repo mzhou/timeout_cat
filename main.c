@@ -4,6 +4,8 @@
 #include <sys/select.h>
 #include <unistd.h>
 
+#define BUF_SIZE (1 * 1024 * 1024)
+
 int main(int argc, char *argv[])
 {
 	char *endptr;
@@ -33,7 +35,7 @@ int main(int argc, char *argv[])
 		return 3;
 	}
 
-	buf = malloc(1 * 1024 * 1024);
+	buf = malloc(BUF_SIZE);
 	for (;;) {
 		timeout = orig_timeout;
 		FD_ZERO(&readfds);
@@ -44,7 +46,7 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 
-		read_result = read(0, buf, sizeof(buf));
+		read_result = read(0, buf, BUF_SIZE);
 		if (read_result <= 0) {
 			fprintf(stderr, "read %zd %d\n", read_result, errno);
 			return 0;
