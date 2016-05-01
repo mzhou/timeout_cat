@@ -7,10 +7,11 @@
 int main(int argc, char *argv[])
 {
 	char *endptr;
+	struct timeval orig_timeout;
 	struct timeval timeout;
 	fd_set readfds;
 	int select_result;
-	char buf[1 * 1024 * 1024];
+	char *buf;
 	ssize_t read_result;
 	ssize_t written;
 	ssize_t write_result;
@@ -20,19 +21,21 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	timeout.tv_sec = strtol(argv[1], &endptr, 10);
+	orig_timeout.tv_sec = strtol(argv[1], &endptr, 10);
 	if (endptr == argv[1] || endptr[0] != '\0') {
 		fprintf(stderr, "Couldn't parse timeout_s\n");
 		return 2;
 	}
 
-	timeout.tv_usec = strtol(argv[2], &endptr, 10);
+	orig_timeout.tv_usec = strtol(argv[2], &endptr, 10);
 	if (endptr == argv[2] || endptr[0] != '\0') {
 		fprintf(stderr, "Couldn't parse timeout_us\n");
 		return 3;
 	}
 
+	buf = malloc(1 * 1024 * 1024);
 	for (;;) {
+		timeout = orig_timeout;
 		FD_ZERO(&readfds);
 		FD_SET(0, &readfds);
 		select_result = select(0 + 1, &readfds, NULL, NULL, &timeout);
